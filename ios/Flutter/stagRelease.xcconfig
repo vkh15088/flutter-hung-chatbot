@@ -1,0 +1,6 @@
+#include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"
+#include "Generated.xcconfig"
+
+ASSET_PREFIX=stag
+BUNDLE_NAME=Chatbot Stag
+BUNDLE_DISPLAY_NAME=Chatbot Stag
