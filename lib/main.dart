@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_hung_chatbot/flavors.dart';
 
-void main() {
+void main() async {
   F.appFlavor = Flavor.values.firstWhere((element) => element.name == appFlavor);
+  await dotenv.load(fileName: F.envFile);
   runApp(const MyApp());
 }
 
