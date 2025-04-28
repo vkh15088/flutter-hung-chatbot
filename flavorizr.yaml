@@ -1,0 +1,32 @@
+ide: vscode
+flavors:
+  dev:
+    app:
+      name: "Chatbot Dev"
+      icon: "assets/icon/ic_launcher_dev.png"
+    android:
+      applicationId: "com.hungvk.chatbot"
+      customConfig:
+          applicationIdSuffix: "\".dev\""
+    ios:
+      bundleId: "com.hungvk.chatbot.dev"
+
+  stag:
+    app:
+      name: "Chatbot Stag"
+      icon: "assets/icon/ic_launcher_stag.png"
+    android:
+      applicationId: "com.hungvk.chatbot"
+      customConfig:
+          applicationIdSuffix: "\".stag\""
+    ios:
+      bundleId: "com.hungvk.chatbot.stag"
+
+  prod:
+    app:
+      name: "Chatbot"
+      icon: "assets/icon/ic_launcher.png"
+    android:
+      applicationId: "com.hungvk.chatbot"
+    ios:
+      bundleId: "com.hungvk.chatbot"
