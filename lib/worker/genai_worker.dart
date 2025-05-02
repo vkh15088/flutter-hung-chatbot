@@ -1,15 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter_hung_chatbot/flavors.dart';
+import 'package:flutter_hung_chatbot/repository/chat_repository.dart';
 import 'package:flutter_hung_chatbot/service/hive_adapter.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:hive/hive.dart';
 
 enum ChatEvent { start, idle, waitingResponse, renderingResponse, finishedResponse }
 
 class GenaiWorker {
-  late final GenerativeModel _model;
-
   final List<ChatContent> _content = [];
   List<ChatContent> get content => _content;
 
@@ -23,11 +21,9 @@ class GenaiWorker {
   Stream<ChatEvent> get eventStream => _eventStreamController.stream;
 
   final _box = Hive.box('myBox');
+  final apiKey = F.getApiKey;
 
   GenaiWorker() {
-    final apiKey = F.getApiKey;
-    print('ahihi apiKey $apiKey');
-    _model = GenerativeModel(model: 'gemini-2.0-flash-lite', apiKey: apiKey);
     _content.addAll(_box.get('chatList', defaultValue: []).cast<ChatContent>());
     Future.delayed(const Duration(seconds: 0)).then((value) {
       _setEvent(ChatEvent.start);
@@ -39,7 +35,6 @@ class GenaiWorker {
   }
 
   void sendToGemini(String message, bool isStreamMode) async {
-    print('ahihi message $message');
     _setEvent(ChatEvent.waitingResponse);
     _content.add(ChatContent.user(message));
     _content.add(ChatContent.gemini(''));
@@ -48,41 +43,46 @@ class GenaiWorker {
 
     try {
       if (isStreamMode) {
-        final response = _model.generateContentStream([Content.text(message)]);
         _setEvent(ChatEvent.renderingResponse);
-
         // Process the stream
-        await for (final chunk in response) {
-          if (chunk.text == null) {
-            _handleNullData();
-          } else {
-            _content.last.message += chunk.text!;
-            _chatListStreamController.sink.add(_content);
-            await _box.put('chatList', List.of(_content));
-          }
+        await for (final result in ChatRepository.postGeminiStream(apiKey, message)) {
+          result.fold(
+            (err) {
+              _handleNullData();
+            },
+            (res) async {
+              for (final chunk in res.candidates.first.content.parts) {
+                _content.last.message += chunk.text;
+                _chatListStreamController.sink.add(_content);
+                await _box.put('chatList', List.of(_content));
+              }
+              _setEvent(ChatEvent.finishedResponse);
+            },
+          );
         }
-        _setEvent(ChatEvent.finishedResponse);
         return;
       }
 
       //If not stream mode
-      final response = await _model.generateContent([Content.text(message)]);
-      final text = response.text;
-
-      _setEvent(ChatEvent.renderingResponse);
-      if (text == null) {
-        _handleNullData();
-      } else {
-        for (int i = 0; i < text.length; i++) {
-          await Future.delayed(const Duration(milliseconds: 10), () {
-            final subText = text.substring(0, i);
-            _content.last.message = subText;
-            _chatListStreamController.sink.add(_content);
-          });
-        }
-        await _box.put('chatList', List.of(_content));
-        _setEvent(ChatEvent.finishedResponse);
-      }
+      final response = await ChatRepository.postGemini(apiKey, message);
+      response.fold(
+        (err) {
+          _handleNullData();
+        },
+        (res) async {
+          _setEvent(ChatEvent.renderingResponse);
+          final text = res.candidates.first.content.parts.first.text;
+          for (int i = 0; i < text.length; i++) {
+            await Future.delayed(const Duration(milliseconds: 10), () {
+              final subText = text.substring(0, i);
+              _content.last.message = subText;
+              _chatListStreamController.sink.add(_content);
+            });
+          }
+          await _box.put('chatList', List.of(_content));
+          _setEvent(ChatEvent.finishedResponse);
+        },
+      );
     } catch (e) {
       _handleNullData();
     }

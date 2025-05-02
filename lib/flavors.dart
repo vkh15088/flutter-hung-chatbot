@@ -8,6 +8,7 @@ class F {
   static String get name => appFlavor.name;
   static String get getEnv => dotenv.get('ENV', fallback: 'dev');
   static String get getApiKey => dotenv.get('API_KEY', fallback: '');
+  static String get getGoogleApi => dotenv.get('GOOGLE_URL', fallback: '');
 
   static String get title {
     switch (appFlavor) {
