@@ -1,5 +1,5 @@
 name: flutter_hung_chatbot
-description: "A new Flutter project."
+description: "A cross-platform chatbot application built using Flutter. It uses the Gemini API from Google."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
