@@ -54,8 +54,8 @@ class _ChatPageState extends State<ChatPage> {
                 Expanded(child: _buildChatList(state)),
                 MessageBox(
                   isStreamMode: state.isStreamMode,
-                  onChangeStreamMode:
-                      () => context.read<ChatBloc>().add(ToggleStreamModeEvent(isStreamMode: !state.isStreamMode)),
+                  onChangeStreamMode: () =>
+                      context.read<ChatBloc>().add(ToggleStreamModeEvent(isStreamMode: !state.isStreamMode)),
                   isClearText: _isClearText(state),
                   onSendMessage: (String text) {
                     if (text.isEmpty || !_isClearText(state)) {

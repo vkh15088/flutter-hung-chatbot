@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hung_chatbot/core/constants/app_theme.dart';
 
 class MessageBox extends StatefulWidget {
   final ValueChanged<String> onSendMessage;
@@ -30,31 +31,32 @@ class _MessageBoxState extends State<MessageBox> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(8),
-      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(AppDimensions.paddingS),
+      margin: const EdgeInsets.only(bottom: AppDimensions.paddingM),
       child: TextField(
         controller: _controller,
         maxLines: 1,
+        style: AppTextStyles.inputText,
         decoration: InputDecoration(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+          contentPadding: const EdgeInsets.symmetric(horizontal: AppDimensions.paddingM),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Colors.black38, width: 1),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusL),
+            borderSide: const BorderSide(color: AppColors.border),
           ),
           prefixIcon: IconButton(
-            onPressed: () => widget.onChangeStreamMode.call(),
-            icon: Icon(Icons.stream, color: widget.isStreamMode ? Colors.blue : Colors.black),
+            onPressed: () => widget.onChangeStreamMode(),
+            icon: Icon(Icons.stream, color: widget.isStreamMode ? AppColors.iconActive : AppColors.iconInactive),
           ),
           suffixIcon: IconButton(
             onPressed: () {
-              widget.onSendMessage.call(_controller.text);
+              widget.onSendMessage(_controller.text);
               if (widget.isClearText) _controller.clear();
             },
-            icon: const Icon(Icons.send),
+            icon: const Icon(Icons.send, color: AppColors.iconActive),
           ),
         ),
         onSubmitted: (value) {
-          widget.onSendMessage.call(value);
+          widget.onSendMessage(value);
           if (widget.isClearText) _controller.clear();
         },
       ),
