@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_hung_chatbot/features/chat/data/models/chat_message_model.dart';
+import 'package:flutter_hung_chatbot/features/chat/domain/entities/ai_model.dart';
 
 enum ChatStatus { initial, loading, success, error }
 
@@ -11,6 +12,7 @@ class ChatState extends Equatable {
   final bool isStreamMode;
   final bool isTouchingScreen;
   final String error;
+  final AIModel model;
   final ChatEventStatus currentEvent;
 
   const ChatState({
@@ -19,16 +21,18 @@ class ChatState extends Equatable {
     required this.isStreamMode,
     required this.isTouchingScreen,
     required this.error,
+    required this.model,
     required this.currentEvent,
   });
 
   factory ChatState.initial() {
-    return const ChatState(
+    return ChatState(
       messages: [],
       status: ChatStatus.initial,
       isStreamMode: false,
       isTouchingScreen: false,
       error: '',
+      model: AIModel.defaultModel,
       currentEvent: ChatEventStatus.idle,
     );
   }
@@ -39,6 +43,7 @@ class ChatState extends Equatable {
     bool? isStreamMode,
     bool? isTouchingScreen,
     String? error,
+    AIModel? model,
     ChatEventStatus? currentEvent,
   }) {
     return ChatState(
@@ -47,10 +52,11 @@ class ChatState extends Equatable {
       isStreamMode: isStreamMode ?? this.isStreamMode,
       isTouchingScreen: isTouchingScreen ?? this.isTouchingScreen,
       error: error ?? this.error,
+      model: model ?? this.model,
       currentEvent: currentEvent ?? this.currentEvent,
     );
   }
 
   @override
-  List<Object> get props => [messages, status, isStreamMode, isTouchingScreen, error, currentEvent];
+  List<Object> get props => [messages, status, isStreamMode, isTouchingScreen, error, model, currentEvent];
 }

@@ -19,6 +19,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<ToggleStreamModeEvent>(_onToggleStreamMode);
     on<TouchingScreenEvent>(_onTouchingScreen);
     on<MessageStreamUpdateEvent>(_onMessageStreamUpdate);
+    on<ChangeModelEvent>(_onChangeModel);
   }
 
   Future<void> _onLoadChatHistory(LoadChatHistory event, Emitter<ChatState> emit) async {
@@ -61,7 +62,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       _messageStreamSubscription?.cancel();
       _messageStreamSubscription =
           await sendMessage
-              .getStream(event.message)
+              .getStream(event.message, state.model)
               .listen(
                 (result) {
                   emit(state.copyWith(currentEvent: ChatEventStatus.renderingResponse));
@@ -84,7 +85,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       emit(state.copyWith(status: ChatStatus.success, currentEvent: ChatEventStatus.finishedResponse));
     } else {
       // Non-stream mode
-      final result = await sendMessage(event.message);
+      final result = await sendMessage(event.message, state.model);
 
       await result.fold(
         (failure) {
@@ -127,6 +128,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   void _onTouchingScreen(TouchingScreenEvent event, Emitter<ChatState> emit) {
     emit(state.copyWith(isTouchingScreen: event.isTouching));
+  }
+  
+  void _onChangeModel(ChangeModelEvent event, Emitter<ChatState> emit) {
+    emit(state.copyWith(model: event.model));
   }
 
   void _onMessageStreamUpdate(MessageStreamUpdateEvent event, Emitter<ChatState> emit) {

@@ -7,8 +7,8 @@ abstract class ChatRepository {
   Future<Either<List<ChatMessage>, List<ChatMessage>>> getChatHistory();
 
   /// Send a message to the AI and get a response
-  Future<Either<GeminiError, ChatMessage>> sendMessage(String message);
+  Future<Either<GeminiError, ChatMessage>> sendMessage(String message, String model);
 
   /// Get stream of AI responses for streaming mode
-  Stream<Either<GeminiError, String>> getMessageStream(String message);
+  Stream<Either<GeminiError, String>> getMessageStream(String message, String model);
 }

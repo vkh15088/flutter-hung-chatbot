@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter_hung_chatbot/features/chat/domain/entities/ai_model.dart';
 
 abstract class ChatEvent extends Equatable {
   const ChatEvent();
@@ -44,4 +45,13 @@ class MessageStreamUpdateEvent extends ChatEvent {
 
   @override
   List<Object> get props => [textChunk];
+}
+
+class ChangeModelEvent extends ChatEvent {
+  final AIModel model;
+
+  const ChangeModelEvent({required this.model});
+
+  @override
+  List<Object> get props => [model];
 }
