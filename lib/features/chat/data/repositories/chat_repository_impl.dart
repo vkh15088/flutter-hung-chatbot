@@ -60,7 +60,7 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<GeminiError, ChatMessage>> sendMessage(String message) async {
+  Future<Either<GeminiError, ChatMessage>> sendMessage(String message, String model) async {
     // Add user message to cache
     final userMessage = ChatMessageModel.user(message);
     await localDataSource.addChatMessage(userMessage);
@@ -71,15 +71,15 @@ class ChatRepositoryImpl implements ChatRepository {
 
     try {
       // Get AI response
-      final response = await remoteDataSource.sendMessage(message);
+      final response = await remoteDataSource.sendMessage(message, model);
       final aiMessage = ChatMessageModel.gemini(response.candidates.first.content.parts.first.text);
 
       // Add AI response to cache
       await localDataSource.addChatMessage(aiMessage);
 
       return Right(aiMessage.toEntity());
-    } on ServerException {
-      return await _handleError(GeminiErrorFactory.createServerError());
+    } on ServerException catch (e) {
+      return await _handleError(GeminiErrorFactory.createServerError(customMessage: e.message));
     } on CacheException {
       return await _handleError(GeminiErrorFactory.createCacheError());
     } on UnexpectedDataException catch (e) {
@@ -92,7 +92,7 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Stream<Either<GeminiError, String>> getMessageStream(String message) async* {
+  Stream<Either<GeminiError, String>> getMessageStream(String message, String model) async* {
     // Add user message to cache
     final userMessage = ChatMessageModel.user(message);
     await localDataSource.addChatMessage(userMessage);
@@ -129,7 +129,7 @@ class ChatRepositoryImpl implements ChatRepository {
 
       // Process the stream
       try {
-        await for (final response in remoteDataSource.getMessageStream(message)) {
+        await for (final response in remoteDataSource.getMessageStream(message, model)) {
           try {
             for (final candidate in response.candidates) {
               for (final part in candidate.content.parts) {
@@ -167,8 +167,8 @@ class ChatRepositoryImpl implements ChatRepository {
             yield Left(processingError);
           }
         }
-      } on ServerException {
-        final serverError = GeminiErrorFactory.createServerError();
+      } on ServerException catch (e) {
+        final serverError = GeminiErrorFactory.createServerError(customMessage: e.message);
         await _createAndSaveErrorMessage(serverError);
         yield Left(serverError);
       } on NetworkException {
@@ -180,7 +180,7 @@ class ChatRepositoryImpl implements ChatRepository {
         await _createAndSaveErrorMessage(dioError);
         yield Left(dioError);
       }
-    } catch (e) {
+    } on Exception {
       final unexpectedError = GeminiErrorFactory.createUnexpectedError();
       await _createAndSaveErrorMessage(unexpectedError);
       yield Left(unexpectedError);

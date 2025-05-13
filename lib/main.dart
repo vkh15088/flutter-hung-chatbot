@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_hung_chatbot/core/constants/app_theme.dart';
 import 'package:flutter_hung_chatbot/core/di/injection_container.dart' as di;
 import 'package:flutter_hung_chatbot/features/chat/data/models/chat_message_model.dart';
-import 'package:flutter_hung_chatbot/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:flutter_hung_chatbot/features/chat/presentation/pages/chat_page.dart';
 import 'package:flutter_hung_chatbot/flavors.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -32,9 +31,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => di.sl<ChatBloc>(),
-      child: const MaterialApp(debugShowCheckedModeBanner: false, home: ChatPage()),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.light().copyWith(
+        appBarTheme: const AppBarTheme(
+          scrolledUnderElevation: 0,
+          toolbarHeight: 40,
+          centerTitle: true,
+          titleTextStyle: AppTextStyles.heading3,
+          backgroundColor: AppColors.background,
+        ),
+      ),
+      home: const ChatPage(),
     );
   }
 }

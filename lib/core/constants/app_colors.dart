@@ -19,6 +19,7 @@ class AppColors {
   // Background colors
   static const Color background = Color(0xFFF5F5F5);
   static const Color surface = Color(0xFFFFFFFF);
+  static const Color backgroundDark = Color(0xFF212121);
 
   // Message bubble colors
   static const Color myMessageBubble = Color(0xFF424242); // Dark grey
